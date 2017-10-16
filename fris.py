@@ -12,7 +12,6 @@ def S(u,x,xp,ro):
 
 def diff(a,b):
     # 5 -> {5}
-
     a = np.atleast_1d(a)
     b = np.atleast_1d(b)
     #diffeer two sets
@@ -106,17 +105,26 @@ class FRiSSTOLP:
         for i in range(classes):
             etalon = self.FindEtalon(X[i],self.without(X[i]))
             Omega0y.append(etalon)
+            
+        print(Omega0y)
 
         #union that etalons to Omega0
         Omega0 = Omega0y[0]
         for i in range(1,classes):
             Omega0 = union(Omega0, Omega0y[i])
+            
+        print(Omega0)
 
         # step2
         Omega = []
         for i in range(classes):
             etalon = self.FindEtalon(X[i], diff(Omega0, Omega0y[i]))
             Omega.append(etalon)
+            
+        print("X")
+        print(X)
+        print("Omega")
+        print(Omega)
 
         print("final OMEGA")
         print(Omega)
@@ -166,7 +174,7 @@ class FRiSSTOLP:
 iris = datasets.load_iris()
 Xl = iris.data[:, [2,3]]  # we only take the first two features.
 y = iris.target
-Xl,y = data.getData()
+#Xl,y = data.getData()
 
 fris = FRiSSTOLP(Xl,y,euclidean,0.75,0.1)
 res = fris.Main()

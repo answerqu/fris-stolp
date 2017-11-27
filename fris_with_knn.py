@@ -105,21 +105,21 @@ class FRiSSTOLP:
         for i in range(classes):
             etalon = self.FindEtalon(X[i],self.without(X[i]))
             Omega0y.append(etalon)
-
+            
         print(Omega0y)
 
         #union that etalons to Omega0
         Omega0 = Omega0y[0]
         for i in range(1,classes):
             Omega0 = union(Omega0, Omega0y[i])
-
+            
         print(Omega0)
 
         # step2
         Omega = []
         for i in range(classes):
             etalon = self.FindEtalon(X[i], diff(Omega0, Omega0y[i]))
-            Omega.append(etalon)
+            Omega.append(etalon)        
 
         print("final OMEGA")
         print(Omega)
@@ -164,57 +164,7 @@ class FRiSSTOLP:
 
 
         return Omega
-
-#method for classification using Fris function
-def classify(x, xl, y, etalons, ro=euclidean):
-    #how many classes
-    cls = int(np.amax(y)+1)
-    #array with all achieved best distances
-    dist = np.zeros(cls)
-    for c in range(cls):
-        #all indexes which class equal to C
-        idx = y == c
-        #take all etalons with class C
-        eta = xl[etalons[c],:]
-        #take all elementh(without etalons) with class C
-        xla = xl[idx,:]
-        #take their classes
-        ya = y[idx]
-        #how many elements with class C
-        n = xla.shape[0]
-        best = -1e9
-        for e in etalons[c]:
-            now = 0
-            for i in range(n):
-                # print(xl[e,:])
-                # print(x)
-                # print(xla[i,:])
-                # quit()
-                #calculate Fris function "distance"
-                now += S(xl[e,:], x, xla[i,:], ro)
-            if now > best: best = now
-        dist[c] = best
-    # print(dist)
-    return np.argmax(dist)
-    # return dist
-
-def classification_map(classifier, inp, out, xfrom=-4, xto=4, ticks=100):
-    # meshgrid
-    h = (xto - xfrom) / ticks
-    xx, yy = np.arange(xfrom, xto, h), np.arange(xfrom, xto, h)
-    xx, yy = np.meshgrid(xx, yy)
-    zz = np.empty(xx.shape, dtype=float)
-    # classify meshgrid
-    pos = 0
-    for x in range(xx.shape[0]):
-        for y in range(yy.shape[0]):
-            zz[x][y] = classifier(xx[x][y], yy[x][y])
-    # display
-    plt.clf()
-    plt.contourf(xx, yy, zz, alpha=0.5) # class separations
-    # plt.scatter(inp[:,0], inp[:,1], c=out, s=50) # dataset points
-    # plt.show()
-
+		
 iris = datasets.load_iris()
 Xl = iris.data[:, [2,3]]  # we only take the first two features.
 y = iris.target
@@ -228,11 +178,8 @@ for i in range(1,len(res)):
     U = union(U, res[i])
 
 print("etalons")
-print(res)
-x = np.array([1,2])
-# print(classify(x,Xl,y,res))
-classifier = lambda a,b: classify(np.array([a,b]), Xl,y,res)
-classification_map(classifier, Xl, y)
+print(EtalonXl)
+print(EtalonY)
 
 plt.scatter(Xl[:,0], Xl[:,1], c=y, s=50)
 plt.scatter(Xl[U,0], Xl[U,1], c=y[U], s=500)

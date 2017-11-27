@@ -11,18 +11,22 @@ def normal(centerx, centery, disp, N):
     y = disp * np.random.randn(N) + centery
     return np.column_stack((x, y))
 
+def gen(n, m, N):
+    data = np.zeros((1, 3))
+    np.random.seed(3)
+    for i in range(n):
+        for j in range(m):
+            cls = np.ones(N) * (1 if ((i + j) % 2 == 0) else 0)
+            tmp = normal(i, j, disp, N)
+            tmp = np.column_stack((tmp, cls))
+            data = np.row_stack((data, tmp))
+    return data[1:,:]
+
 def getData():
-    d1 = 1
-    d2 = 1
-    
-    np.random.seed(365)
     N = 15
-    x1 = normal(-2,0,d1,N)
-    y1 = np.array([0] * N)
-    x2 = normal(2,0,d2,N)
-    y2 = np.array([1] * N)
-    x = np.row_stack((x1,x2))
-    y = np.concatenate((y1,y2))
+    square = 2
+    ret = gen(square, square, N)
+    x, y = ret[:,:2], ret[:,2]
     return x, y
 
 

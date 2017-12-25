@@ -1,7 +1,6 @@
 import numpy as np
-import data
+import dataFris
 import matplotlib.pyplot as plt
-from sklearn import datasets
 
 def euclidean(x,y):
     return np.sqrt(np.sum((x-y)**2))
@@ -148,7 +147,6 @@ class FRiSSTOLP:
             All = diff(All,U)
 
             if(len(U)==0): break
-
             if(All.size == 0): break
 
             # step6
@@ -186,10 +184,6 @@ def classify(x, xl, y, etalons, ro=euclidean):
         for e in etalons[c]:
             now = 0
             for i in range(n):
-                # print(xl[e,:])
-                # print(x)
-                # print(xla[i,:])
-                # quit()
                 #calculate Fris function "distance"
                 now += S(xl[e,:], x, xla[i,:], ro)
             if now > best: best = now
@@ -198,7 +192,10 @@ def classify(x, xl, y, etalons, ro=euclidean):
     return np.argmax(dist)
     # return dist
 
-def classification_map(classifier, inp, out, xfrom=-4, xto=4, ticks=100):
+def KNN(x, xl, y, etalons, ro=euclidean):
+    
+    
+def classification_map(classifier, inp, out, xfrom=-5, xto=4, ticks=100):
     # meshgrid
     h = (xto - xfrom) / ticks
     xx, yy = np.arange(xfrom, xto, h), np.arange(xfrom, xto, h)
@@ -212,13 +209,8 @@ def classification_map(classifier, inp, out, xfrom=-4, xto=4, ticks=100):
     # display
     plt.clf()
     plt.contourf(xx, yy, zz, alpha=0.5) # class separations
-    # plt.scatter(inp[:,0], inp[:,1], c=out, s=50) # dataset points
-    # plt.show()
 
-iris = datasets.load_iris()
-Xl = iris.data[:, [2,3]]  # we only take the first two features.
-y = iris.target
-Xl,y = data.getData()
+Xl,y = dataFris.DataBuilder().Build("degenerate")
 
 fris = FRiSSTOLP(Xl,y,euclidean,0.75,0.1)
 res = fris.Main()
@@ -230,7 +222,6 @@ for i in range(1,len(res)):
 print("etalons")
 print(res)
 x = np.array([1,2])
-# print(classify(x,Xl,y,res))
 classifier = lambda a,b: classify(np.array([a,b]), Xl,y,res)
 classification_map(classifier, Xl, y)
 

@@ -192,27 +192,40 @@ def classify(x, xl, y, etalons, ro=euclidean):
     return np.argmax(dist)
     # return dist
 
-def KNN(x, xl, y, etalons, ro=euclidean):
+#gets x, Xl - viborka, Y - classes, ro - metric
+def KNN(x,Xl,Y,k=1, ro=euclidean):
+    n = Xl.shape[0]
+    dist = np.zeros(n)
+    for i in range (n) :
+        dist[i] = ro(x,Xl[i,:])
+    Xl = Xl[np.argsort (dist), : ]
+    Y = Y[np.argsort (dist)]
+    cnt = int(np.amax(Y)+1)
+    score = [0]*cnt
+    for i in range (k):
+        curClass = int(Y[i])
+        score[curClass] += 1
+    return np.argmax(score)
     
-    
-def classification_map(classifier, inp, out, xfrom=-5, xto=4, ticks=100):
+def classification_map(classifier, inp, out, xfrom=-7, xto=11, ticks=100):
     # meshgrid
     h = (xto - xfrom) / ticks
     xx, yy = np.arange(xfrom, xto, h), np.arange(xfrom, xto, h)
     xx, yy = np.meshgrid(xx, yy)
     zz = np.empty(xx.shape, dtype=float)
-    # classify meshgrid
+    # classify meshgrid 
     pos = 0
     for x in range(xx.shape[0]):
         for y in range(yy.shape[0]):
             zz[x][y] = classifier(xx[x][y], yy[x][y])
     # display
+    print("qwe")
     plt.clf()
     plt.contourf(xx, yy, zz, alpha=0.5) # class separations
 
-Xl,y = dataFris.DataBuilder().Build("degenerate")
+Xl,Y = dataFris.DataBuilder().Build("fris")
 
-fris = FRiSSTOLP(Xl,y,euclidean,0.75,0.1)
+fris = FRiSSTOLP(Xl,Y,euclidean,0.5,0.0)
 res = fris.Main()
 
 U = res[0]
@@ -220,11 +233,18 @@ for i in range(1,len(res)):
     U = union(U, res[i])
 
 print("etalons")
-print(res)
-x = np.array([1,2])
-classifier = lambda a,b: classify(np.array([a,b]), Xl,y,res)
-classification_map(classifier, Xl, y)
 
-plt.scatter(Xl[:,0], Xl[:,1], c=y, s=50)
-plt.scatter(Xl[U,0], Xl[U,1], c=y[U], s=500)
+EtaXl = np.array(Xl[U])
+EtaY = np.array(Y[U])
+
+classifierFris = lambda a,b: classify(np.array([a,b]), Xl,Y,res)
+classification_map(classifierFris, Xl, Y)
+plt.scatter(Xl[:,0], Xl[:,1], c=Y, s=50)
+plt.scatter(Xl[U,0], Xl[U,1], c=Y[U], s=500)
+plt.show()
+
+classifierKNN = lambda a,b: KNN(np.array([a,b]),Xl,Y)
+classification_map(classifierKNN, EtaXl, EtaY)
+plt.scatter(Xl[:,0], Xl[:,1], c=Y, s=50)
+plt.scatter(Xl[U,0], Xl[U,1], c=Y[U], s=500)
 plt.show()
